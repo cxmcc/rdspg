@@ -54,3 +54,27 @@ Compare differences between two parameter groups:
     checkpoint_timeout              300  450
     checkpoint_warning               60  <not-set>
     checkpoint_segments             512  32
+
+Export parameter group in terraform template format:
+
+::
+
+    $ rdspg terraform my-parameter-group
+    resource "aws_db_parameter_group" "my-parameter-group" {
+      name   = "my-parameter-group"
+      family = "postgres9.5"
+      description = "My awesome parameter group"
+    
+      parameter {
+        name         = "autovacuum_analyze_scale_factor"
+        value        = "0.01"
+        apply_method = "immediate"
+      }
+    
+      parameter {
+        name         = "autovacuum_vacuum_scale_factor"
+        value        = "0.01"
+        apply_method = "immediate"
+      }
+    
+    }
