@@ -5,6 +5,7 @@ from setuptools import setup
 install_requires = [
     'boto3>=1.4.5',
     'click>=6.7',
+    'tabulate>=0.7.7',
     'Jinja2>=2.9.6'
 ]
 
@@ -29,6 +30,6 @@ setup(
     package_data={'rdspg': ['terraform.jinja']},
     entry_points={'console_scripts': ['rdspg = rdspg.__main__:main']},
     install_requires=install_requires,
-    keywords=['AWS', 'RDS'],
+    keywords=['AWS', 'RDS', 'Parameter Groups', 'Relational Database Service'],
     classifiers=classifiers,
 )
