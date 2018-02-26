@@ -1,0 +1,13 @@
+resource "aws_db_parameter_group" "{{ parameter_group_name }}" {
+  name   = "{{ parameter_group_name }}"
+  family = "{{ info['family'] }}"
+{% if info['description'] %}  description = "{{ info['description'] }}"
+{% endif %}
+{% for param in params %}
+  parameter {
+    name         = "{{ param['ParameterName'] }}"
+    value        = "{{ param['ParameterValue'] }}"
+    apply_method = "{{ param['ApplyMethod'] }}"
+  }
+{% endfor %}
+}
