@@ -18,10 +18,13 @@ classifiers = [
 with open('README.rst', 'r') as f:
     long_description = f.read()
 
+description = ('Command-line toolkit to help understand information '
+               'about your AWS RDS Parameter Groups.')
+
 setup(
     name='rdspg',
     version='0.1',
-    description='Command-line toolkit to help understand information of your AWS RDS Paramter Groups.',
+    description=description,
     long_description=long_description,
     author='Xiuming Chen',
     author_email='cc@cxm.cc',

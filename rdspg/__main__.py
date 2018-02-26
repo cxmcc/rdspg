@@ -7,7 +7,9 @@ import jinja2
 
 def rds_get_parameters(parameter_group_name):
     client = boto3.client('rds')
-    resp = client.describe_db_parameters(DBParameterGroupName=parameter_group_name)
+    resp = client.describe_db_parameters(
+        DBParameterGroupName=parameter_group_name
+    )
     return resp['Parameters']
 
 
@@ -19,10 +21,13 @@ def rds_get_parameter_groups():
 
 def rds_get_pg_info(parameter_group_name):
     client = boto3.client('rds')
-    resp = client.describe_db_parameter_groups(DBParameterGroupName=parameter_group_name)
+    resp = client.describe_db_parameter_groups(
+        DBParameterGroupName=parameter_group_name
+    )
+    parameter_group_info = resp['DBParameterGroups'][0]
     info = {}
-    info['family'] = resp['DBParameterGroups'][0]['DBParameterGroupFamily']
-    info['description'] = resp['DBParameterGroups'][0]['Description']
+    info['family'] = parameter_group_info['DBParameterGroupFamily']
+    info['description'] = parameter_group_info['Description']
     return info
 
 
@@ -62,7 +67,7 @@ def calculate_diff(params_a, params_b):
 
 def only_important_columns_pg(pgs):
     for pg in pgs:
-        for k in ('DBParameterGroupArn', ):
+        for k in ('DBParameterGroupArn',):
             if k in pg:
                 del pg[k]
     return pgs
@@ -77,8 +82,10 @@ def only_user_params(params):
 
 
 def only_important_columns(params):
+    columns = ('Description', 'DataType', 'IsModifiable',
+               'AllowedValues', 'Source')
     for param in params:
-        for k in ('Description', 'DataType', 'IsModifiable', 'AllowedValues', 'Source'):
+        for k in columns:
             if k in param:
                 del param[k]
     return params
@@ -92,7 +99,9 @@ def terraform(parameter_group_name, info, params):
         return jinja2.Environment(
             loader=jinja2.FileSystemLoader(path or './')
         ).get_template(filename).render(context)
-    context = {'parameter_group_name': parameter_group_name, 'params': params, 'info': info}
+
+    context = {'parameter_group_name': parameter_group_name,
+               'params': params, 'info': info}
     return render(context)
 
 
@@ -148,10 +157,11 @@ def cmd_diff(parameter_group_a, parameter_group_b, all_params, no_header):
         params_a = only_user_params(params_a)
         params_b = only_user_params(params_b)
     diff = calculate_diff(params_a, params_b)
+    headers = ['ParameterName', parameter_group_a, parameter_group_b]
     if no_header:
         kwargs = {'tablefmt': 'plain'}
     else:
-        kwargs = {'tablefmt': 'simple', 'headers': ['ParameterName', parameter_group_a, parameter_group_b]}
+        kwargs = {'tablefmt': 'simple', 'headers': headers}
     output = tabulate.tabulate(diff, numalign='right', **kwargs)
     click.echo(output)
 
@@ -168,7 +178,7 @@ def cmd_terraform(parameter_group):
 
 def main():
     cli()
-    
+
 
 if __name__ == '__main__':
     main()
