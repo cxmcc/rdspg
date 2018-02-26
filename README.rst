@@ -1,7 +1,7 @@
 rdspg
 ======
 
-Command-line toolkit to help understand information of your RDS Paramter Groups.
+Command-line toolkit to help understand information of your AWS RDS Paramter Groups.
 
 Installation
 ------------
@@ -9,6 +9,18 @@ Installation
 .. code:: bash
 
     pip install rdspg
+    
+Purpose
+-------
+
+When it comes to analyzing parameter groups for RDS, AWS suggested in a `blog post <https://aws.amazon.com/premiumsupport/knowledge-center/default-custom-groups/>`_ that:
+
+:: 
+
+    There is no AWS CLI command to compare two parameter groups simultaneously; this feature is only available by using the RDS console.
+    You can then compare the plain text files that list the parameter groups using a Linux tool such as the diff command, or a source code editor like Notepad++.
+
+This tool is to help us make that task a lot easier. Also adding a few other features to help analyzing changes.
     
 Usage
 -----
