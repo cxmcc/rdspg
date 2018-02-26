@@ -26,3 +26,20 @@ Listing Parameter Groups:
     default.postgres9.5              postgres9.5               Default parameter group for postgres9.5
     default.postgres9.6              postgres9.6               Default parameter group for postgres9.6
     my-parameter-group               postgres9.6               My Parameter Group
+
+Getting parameters in parameter group, filtering out default values:
+
+::
+
+    $ rdspg get instacart-replica
+    ParameterName                      ParameterValue  ApplyMethod    ApplyType
+    -------------------------------  ----------------  -------------  -----------
+    autovacuum_analyze_scale_factor               0.1  immediate      dynamic
+    checkpoint_segments                           512  immediate      dynamic
+    checkpoint_timeout                            300  immediate      dynamic
+    checkpoint_warning                             60  immediate      dynamic
+    default_statistics_target                     100  immediate      dynamic
+    hot_standby_feedback                            1  immediate      dynamic
+    log_autovacuum_min_duration                     0  immediate      dynamic
+    log_connections                                 1  immediate      dynamic
+    log_disconnections                              1  immediate      dynamic
