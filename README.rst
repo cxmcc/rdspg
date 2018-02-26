@@ -1,7 +1,7 @@
 rdspg
 ======
 
-Command-line toolkit to help understand information of your AWS RDS Parameter Groups.
+Command-line toolkit to help understand information about your AWS RDS Parameter Groups.
 
 Installation
 ------------
