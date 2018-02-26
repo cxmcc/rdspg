@@ -43,3 +43,14 @@ Getting parameters in parameter group, filtering out default values:
     log_autovacuum_min_duration                     0  immediate      dynamic
     log_connections                                 1  immediate      dynamic
     log_disconnections                              1  immediate      dynamic
+
+Compare differences between two parameter groups:
+
+::
+
+    $ rdspg diff my-replica-a my-replica-b
+    ParameterName          my-replica-a  my-replica-b
+    -------------------  --------------  ---------------------
+    checkpoint_timeout              300  450
+    checkpoint_warning               60  <not-set>
+    checkpoint_segments             512  32
