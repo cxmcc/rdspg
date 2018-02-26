@@ -31,7 +31,7 @@ Getting parameters in parameter group, filtering out default values:
 
 ::
 
-    $ rdspg get instacart-replica
+    $ rdspg get my-replica
     ParameterName                      ParameterValue  ApplyMethod    ApplyType
     -------------------------------  ----------------  -------------  -----------
     autovacuum_analyze_scale_factor               0.1  immediate      dynamic
