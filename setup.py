@@ -19,8 +19,8 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='rdspg',
-    version='20170909',
-    description='Toolkit to extract and simplify information of existing RDS parameter groups.',
+    version='0.1',
+    description='Command-line toolkit to help understand information of your AWS RDS Paramter Groups.',
     long_description=long_description,
     author='Xiuming Chen',
     author_email='cc@cxm.cc',
