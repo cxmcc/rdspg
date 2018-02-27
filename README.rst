@@ -13,7 +13,7 @@ Installation
 Purpose
 -------
 
-When it comes to analyzing parameter groups for RDS, AWS suggested in a `blog post <https://aws.amazon.com/premiumsupport/knowledge-center/default-custom-groups/>`_ that:
+When it comes to analyzing parameter groups for RDS, AWS suggested in a `blog post <https://aws.amazon.com/premiumsupport/knowledge-center/default-custom-groups/>`_ that it could only be done using `diff`:
 
 :: 
 
