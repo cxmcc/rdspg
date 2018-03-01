@@ -7,10 +7,11 @@ import jinja2
 
 def rds_get_parameters(parameter_group_name):
     client = boto3.client('rds')
-    resp = client.describe_db_parameters(
-        DBParameterGroupName=parameter_group_name
-    )
-    return resp['Parameters']
+    paginator = client.get_paginator('describe_db_parameters')
+    out = []
+    for page in paginator.paginate(DBParameterGroupName=parameter_group_name):
+        out += page['Parameters']
+    return out
 
 
 def rds_get_parameter_groups():
