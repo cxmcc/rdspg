@@ -1,7 +1,7 @@
 resource "aws_db_parameter_group" "{{ parameter_group_name }}" {
   name   = "{{ parameter_group_name }}"
-  family = "{{ info['family'] }}"
-{% if info['description'] %}  description = "{{ info['description'] }}"
+  family = "{{ info['DBParameterGroupFamily'] }}"
+{% if info['description'] %}  description = "{{ info['Description'] }}"
 {% endif %}
 {% for param in params %}
   parameter {
@@ -10,4 +10,9 @@ resource "aws_db_parameter_group" "{{ parameter_group_name }}" {
     apply_method = "{{ param['ApplyMethod'] }}"
   }
 {% endfor %}
+  tag {
+{% for tag in tags %}
+    {{ tag['Key']}} = "{{ tag['Value'] }}"
+{% endfor %}
+  }
 }

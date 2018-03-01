@@ -20,16 +20,19 @@ def rds_get_parameter_groups():
     return resp['DBParameterGroups']
 
 
+def rds_list_tags(arn):
+    client = boto3.client('rds')
+    resp = client.list_tags_for_resource(ResourceName=arn)
+    return resp.get('TagList', [])
+
+
 def rds_get_pg_info(parameter_group_name):
     client = boto3.client('rds')
     resp = client.describe_db_parameter_groups(
         DBParameterGroupName=parameter_group_name
     )
     parameter_group_info = resp['DBParameterGroups'][0]
-    info = {}
-    info['family'] = parameter_group_info['DBParameterGroupFamily']
-    info['description'] = parameter_group_info['Description']
-    return info
+    return parameter_group_info
 
 
 def params_to_kv(params):
@@ -92,7 +95,7 @@ def only_important_columns(params):
     return params
 
 
-def terraform(parameter_group_name, info, params):
+def terraform(parameter_group_name, info, params, tags):
     def render(context):
         curr_dir = os.path.dirname(__file__)
         template_file_path = os.path.join(curr_dir, 'terraform.jinja')
@@ -102,7 +105,7 @@ def terraform(parameter_group_name, info, params):
         ).get_template(filename).render(context)
 
     context = {'parameter_group_name': parameter_group_name,
-               'params': params, 'info': info}
+               'params': params, 'info': info, 'tags': tags}
     return render(context)
 
 
@@ -172,8 +175,9 @@ def cmd_diff(parameter_group_a, parameter_group_b, all_params, no_header):
 def cmd_terraform(parameter_group):
     params = rds_get_parameters(parameter_group)
     info = rds_get_pg_info(parameter_group)
+    tags = rds_list_tags(info['DBParameterGroupArn'])
     params = only_user_params(params)
-    template = terraform(parameter_group, info, params)
+    template = terraform(parameter_group, info, params, tags)
     click.echo(template)
 
 
