@@ -14,10 +14,22 @@ def rds_get_parameters(parameter_group_name):
     return out
 
 
+def rds_get_databases():
+    client = boto3.client('rds')
+    paginator = client.get_paginator('describe_db_instances')
+    out = []
+    for page in paginator.paginate():
+        out += page['DBInstances']
+    return out
+
+
 def rds_get_parameter_groups():
     client = boto3.client('rds')
-    resp = client.describe_db_parameter_groups()
-    return resp['DBParameterGroups']
+    paginator = client.get_paginator('describe_db_parameter_groups')
+    out = []
+    for page in paginator.paginate():
+        out += page['DBParameterGroups']
+    return out
 
 
 def rds_list_tags(arn):
@@ -33,6 +45,25 @@ def rds_get_pg_info(parameter_group_name):
     )
     parameter_group_info = resp['DBParameterGroups'][0]
     return parameter_group_info
+
+
+def generate_pg_to_db_mapping(pgs, dbs):
+    mapping = {}
+    for pg in pgs:
+        pg_name = pg['DBParameterGroupName']
+        mapping[pg_name] = []
+    for db in dbs:
+        db_name = db['DBInstanceIdentifier']
+        pg_name = db['DBParameterGroups'][0]['DBParameterGroupName']
+        mapping[pg_name].append(db_name)
+    out = []
+    for k, v in sorted(mapping.items()):
+        if v == []:
+            value = '<not-used>'
+        else:
+            value = ','.join(v)
+        out.append((k, value))
+    return out
 
 
 def params_to_kv(params):
@@ -112,6 +143,21 @@ def terraform(parameter_group_name, info, params, tags):
 @click.group()
 def cli():
     pass
+
+
+@cli.command(name='mapping')
+@click.option('--no-header', is_flag=True, default=False)
+def cmd_mapping(no_header):
+    pgs = rds_get_parameter_groups()
+    dbs = rds_get_databases()
+    mapping = generate_pg_to_db_mapping(pgs, dbs)
+    if no_header:
+        kwargs = {'tablefmt': 'plain'}
+    else:
+        headers = ('ParameterGroup', 'DBInstances')
+        kwargs = {'tablefmt': 'simple', 'headers': headers}
+    output = tabulate.tabulate(mapping, numalign='right', **kwargs)
+    click.echo(output)
 
 
 @cli.command(name='list')
