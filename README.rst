@@ -19,7 +19,28 @@ When it comes to analyzing parameter groups for RDS, AWS suggested in a `blog po
     You can then compare the plain text files that list the parameter groups using a Linux tool such as the diff command, or a source code editor like Notepad++.
 
 I think we can do better. This tool is to help us make that task a lot easier. Also adding a few other features to help analyzing changes.
-    
+
+Permission Config
+-----------------
+This tool needs certain IAM permissions in order to work. Example policy:
+
+::
+
+    {
+       "Version":"2012-10-17",
+       "Statement":[
+          {
+             "Effect":"Allow",
+             "Action":[
+                "rds:DescribeDBInstances",
+                "rds:DescribeDBParameters",
+                "rds:ListTagsForResource"
+             ],
+             "Resource":"*"
+          }
+       ]
+    }
+
 Usage
 -----
 * Listing Parameter Groups:
