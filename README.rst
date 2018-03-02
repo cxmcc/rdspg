@@ -15,16 +15,14 @@ Purpose
 
 When it comes to analyzing parameter groups for RDS, AWS suggested in a `blog post <https://aws.amazon.com/premiumsupport/knowledge-center/default-custom-groups/>`_ that it could only be done using `diff`:
 
-:: 
-
     There is no AWS CLI command to compare two parameter groups simultaneously; this feature is only available by using the RDS console.
     You can then compare the plain text files that list the parameter groups using a Linux tool such as the diff command, or a source code editor like Notepad++.
 
-This tool is to help us make that task a lot easier. Also adding a few other features to help analyzing changes.
+I think we can do better. This tool is to help us make that task a lot easier. Also adding a few other features to help analyzing changes.
     
 Usage
 -----
-Listing Parameter Groups:
+* Listing Parameter Groups:
 
 ::
 
@@ -39,7 +37,7 @@ Listing Parameter Groups:
     default.postgres9.6              postgres9.6               Default parameter group for postgres9.6
     my-parameter-group               postgres9.6               My Parameter Group
 
-Getting parameters in parameter group, filtering out default values:
+* Getting parameters in parameter group, filtering out default values:
 
 ::
 
@@ -56,7 +54,18 @@ Getting parameters in parameter group, filtering out default values:
     log_connections                                 1  immediate      dynamic
     log_disconnections                              1  immediate      dynamic
 
-Compare differences between two parameter groups:
+* Getting a mapping of parameter group -> instances:
+
+::
+
+    $ rdspg mapping
+    ParameterGroup       DBInstances
+    -------------------  -----------------------------
+    default.postgres9.4  <not-used>
+    default.postgres9.5  db-replica-9-5,db-replica-9-5
+    default.postgres9.6  db-replica-9-6,db-replica-9-6
+
+* Compare differences between two parameter groups:
 
 ::
 
@@ -67,7 +76,7 @@ Compare differences between two parameter groups:
     checkpoint_warning               60  <not-set>
     checkpoint_segments             512  32
 
-Export parameter group in terraform template format:
+* Export parameter group in terraform template format:
 
 ::
 
