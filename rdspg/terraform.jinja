@@ -13,7 +13,7 @@ resource "aws_db_parameter_group" "{{ parameter_group_name }}" {
 {% endfor %}
 {% endif %}
 {% if tags %}
-  tag {
+  tags {
 {% for tag in tags %}
     {{ tag['Key']}} = "{{ tag['Value'] }}"
 {% endfor %}
