@@ -1,7 +1,7 @@
 resource "aws_db_parameter_group" "{{ parameter_group_name }}" {
   name   = "{{ parameter_group_name }}"
   family = "{{ info['DBParameterGroupFamily'] }}"
-{% if info['description'] %}  description = "{{ info['Description'] }}"
+{% if info['Description'] %}  description = "{{ info['Description'] }}"
 {% endif %}
 {% if params %}
 {% for param in params %}
