@@ -23,7 +23,7 @@ description = ('Command-line toolkit to help understand information '
 
 setup(
     name='rdspg',
-    version='0.1.8',
+    version='0.1.9',
     description=description,
     long_description=long_description,
     author='Xiuming Chen',
