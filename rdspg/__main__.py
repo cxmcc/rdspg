@@ -5,7 +5,7 @@ import os
 import jinja2
 
 
-def rds_get_parameters(parameter_group_name):
+def rds_get_db_parameters(parameter_group_name):
     client = boto3.client('rds')
     paginator = client.get_paginator('describe_db_parameters')
     out = []
@@ -14,7 +14,7 @@ def rds_get_parameters(parameter_group_name):
     return out
 
 
-def rds_get_databases():
+def rds_get_db_instances():
     client = boto3.client('rds')
     paginator = client.get_paginator('describe_db_instances')
     out = []
@@ -23,7 +23,7 @@ def rds_get_databases():
     return out
 
 
-def rds_get_parameter_groups():
+def rds_get_db_parameter_groups():
     client = boto3.client('rds')
     paginator = client.get_paginator('describe_db_parameter_groups')
     out = []
@@ -148,8 +148,8 @@ def cli():
 @cli.command(name='mapping')
 @click.option('--no-header', is_flag=True, default=False)
 def cmd_mapping(no_header):
-    pgs = rds_get_parameter_groups()
-    dbs = rds_get_databases()
+    pgs = rds_get_db_parameter_groups()
+    dbs = rds_get_db_instances()
     mapping = generate_pg_to_db_mapping(pgs, dbs)
     if no_header:
         kwargs = {'tablefmt': 'plain'}
@@ -164,7 +164,7 @@ def cmd_mapping(no_header):
 @click.option('--detail', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
 def cmd_list(detail, no_header):
-    pgs = rds_get_parameter_groups()
+    pgs = rds_get_db_parameter_groups()
     if not detail:
         pgs = only_important_columns_pg(pgs)
     if no_header:
@@ -181,7 +181,7 @@ def cmd_list(detail, no_header):
 @click.option('--detail', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
 def cmd_get(parameter_group, all_params, detail, no_header):
-    params = rds_get_parameters(parameter_group)
+    params = rds_get_db_parameters(parameter_group)
     if not all_params:
         params = only_user_params(params)
     if not detail:
@@ -201,8 +201,8 @@ def cmd_get(parameter_group, all_params, detail, no_header):
 @click.option('--all-params', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
 def cmd_diff(parameter_group_a, parameter_group_b, all_params, no_header):
-    params_a = rds_get_parameters(parameter_group_a)
-    params_b = rds_get_parameters(parameter_group_b)
+    params_a = rds_get_db_parameters(parameter_group_a)
+    params_b = rds_get_db_parameters(parameter_group_b)
     if not all_params:
         params_a = only_user_params(params_a)
         params_b = only_user_params(params_b)
@@ -219,7 +219,7 @@ def cmd_diff(parameter_group_a, parameter_group_b, all_params, no_header):
 @cli.command(name='terraform')
 @click.argument('parameter-group')
 def cmd_terraform(parameter_group):
-    params = rds_get_parameters(parameter_group)
+    params = rds_get_db_parameters(parameter_group)
     info = rds_get_pg_info(parameter_group)
     tags = rds_list_tags(info['DBParameterGroupArn'])
     params = only_user_params(params)
