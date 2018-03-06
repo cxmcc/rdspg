@@ -81,10 +81,10 @@ Usage
 
     $ rdspg mapping
     ParameterGroup       DBInstances
-    -------------------  -----------------------------
+    -------------------  ---------------------------------
     default.postgres9.4  <not-used>
-    default.postgres9.5  db-replica-9-5,db-replica-9-5
-    default.postgres9.6  db-replica-9-6,db-replica-9-6
+    default.postgres9.5  db-replica-9-5-a,db-replica-9-5-b
+    default.postgres9.6  db-replica-9-6-a,db-replica-9-6-b
 
 * Compare differences between two parameter groups:
 
@@ -120,3 +120,15 @@ Usage
       }
     
     }
+
+* All the commands work for db clusters with `--cluster` flag
+
+::
+
+    $ rdspg list --cluster
+    DBClusterParameterGroupName    DBParameterGroupFamily    Description
+    -----------------------------  ------------------------  --------------------------------------------------------
+    customers-p-cluster            aurora-postgresql9.6      Managed by Terraform
+    default.aurora-postgresql1     aurora-postgresql1        Default cluster parameter group for aurora-postgresql1
+    default.aurora-postgresql9.6   aurora-postgresql9.6      Default cluster parameter group for aurora-postgresql9.6
+    default.aurora5.6              aurora5.6                 Default cluster parameter group for aurora5.6
