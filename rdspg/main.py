@@ -1,69 +1,8 @@
 import click
-import boto3
+import rds
 import tabulate
 import os
 import jinja2
-
-
-def rds_get_db_parameters(parameter_group_name):
-    client = boto3.client('rds')
-    paginator = client.get_paginator('describe_db_parameters')
-    out = []
-    for page in paginator.paginate(DBParameterGroupName=parameter_group_name):
-        out += page['Parameters']
-    return out
-
-
-def rds_get_db_instances():
-    client = boto3.client('rds')
-    paginator = client.get_paginator('describe_db_instances')
-    out = []
-    for page in paginator.paginate():
-        out += page['DBInstances']
-    return out
-
-
-def rds_get_db_parameter_groups():
-    client = boto3.client('rds')
-    paginator = client.get_paginator('describe_db_parameter_groups')
-    out = []
-    for page in paginator.paginate():
-        out += page['DBParameterGroups']
-    return out
-
-
-def rds_list_tags(arn):
-    client = boto3.client('rds')
-    resp = client.list_tags_for_resource(ResourceName=arn)
-    return resp.get('TagList', [])
-
-
-def rds_get_pg_info(parameter_group_name):
-    client = boto3.client('rds')
-    resp = client.describe_db_parameter_groups(
-        DBParameterGroupName=parameter_group_name
-    )
-    parameter_group_info = resp['DBParameterGroups'][0]
-    return parameter_group_info
-
-
-def generate_pg_to_db_mapping(pgs, dbs):
-    mapping = {}
-    for pg in pgs:
-        pg_name = pg['DBParameterGroupName']
-        mapping[pg_name] = []
-    for db in dbs:
-        db_name = db['DBInstanceIdentifier']
-        pg_name = db['DBParameterGroups'][0]['DBParameterGroupName']
-        mapping[pg_name].append(db_name)
-    out = []
-    for k, v in sorted(mapping.items()):
-        if v == []:
-            value = '<not-used>'
-        else:
-            value = ','.join(v)
-        out.append((k, value))
-    return out
 
 
 def params_to_kv(params):
@@ -102,7 +41,7 @@ def calculate_diff(params_a, params_b):
 
 def only_important_columns_pg(pgs):
     for pg in pgs:
-        for k in ('DBParameterGroupArn',):
+        for k in ('DBParameterGroupArn', 'DBClusterParameterGroupArn'):
             if k in pg:
                 del pg[k]
     return pgs
@@ -146,11 +85,11 @@ def cli():
 
 
 @cli.command(name='mapping')
+@click.option('--cluster', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
-def cmd_mapping(no_header):
-    pgs = rds_get_db_parameter_groups()
-    dbs = rds_get_db_instances()
-    mapping = generate_pg_to_db_mapping(pgs, dbs)
+def cmd_mapping(cluster, no_header):
+    api = rds.get_api(cluster=cluster)
+    mapping = api.generate_pg_to_db_mapping()
     if no_header:
         kwargs = {'tablefmt': 'plain'}
     else:
@@ -161,10 +100,12 @@ def cmd_mapping(no_header):
 
 
 @cli.command(name='list')
+@click.option('--cluster', is_flag=True, default=False)
 @click.option('--detail', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
-def cmd_list(detail, no_header):
-    pgs = rds_get_db_parameter_groups()
+def cmd_list(cluster, detail, no_header):
+    api = rds.get_api(cluster=cluster)
+    pgs = api.get_parameter_groups()
     if not detail:
         pgs = only_important_columns_pg(pgs)
     if no_header:
@@ -177,11 +118,13 @@ def cmd_list(detail, no_header):
 
 @cli.command(name='get')
 @click.argument('parameter-group')
+@click.option('--cluster', is_flag=True, default=False)
 @click.option('--all-params', is_flag=True, default=False)
 @click.option('--detail', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
-def cmd_get(parameter_group, all_params, detail, no_header):
-    params = rds_get_db_parameters(parameter_group)
+def cmd_get(cluster, parameter_group, all_params, detail, no_header):
+    api = rds.get_api(cluster=cluster)
+    params = api.get_parameters(parameter_group)
     if not all_params:
         params = only_user_params(params)
     if not detail:
@@ -198,11 +141,14 @@ def cmd_get(parameter_group, all_params, detail, no_header):
 @cli.command(name='diff')
 @click.argument('parameter-group-a')
 @click.argument('parameter-group-b')
+@click.option('--cluster', is_flag=True, default=False)
 @click.option('--all-params', is_flag=True, default=False)
 @click.option('--no-header', is_flag=True, default=False)
-def cmd_diff(parameter_group_a, parameter_group_b, all_params, no_header):
-    params_a = rds_get_db_parameters(parameter_group_a)
-    params_b = rds_get_db_parameters(parameter_group_b)
+def cmd_diff(cluster, parameter_group_a, parameter_group_b,
+             all_params, no_header):
+    api = rds.get_api(cluster=cluster)
+    params_a = api.get_parameters(parameter_group_a)
+    params_b = api.get_parameters(parameter_group_b)
     if not all_params:
         params_a = only_user_params(params_a)
         params_b = only_user_params(params_b)
@@ -217,11 +163,13 @@ def cmd_diff(parameter_group_a, parameter_group_b, all_params, no_header):
 
 
 @cli.command(name='terraform')
+@click.option('--cluster', is_flag=True, default=False)
 @click.argument('parameter-group')
-def cmd_terraform(parameter_group):
-    params = rds_get_db_parameters(parameter_group)
-    info = rds_get_pg_info(parameter_group)
-    tags = rds_list_tags(info['DBParameterGroupArn'])
+def cmd_terraform(cluster, parameter_group):
+    api = rds.get_api(cluster=cluster)
+    params = api.get_parameters(parameter_group)
+    info = api.get_pg_info(parameter_group)
+    tags = api.list_tags(info['DBParameterGroupArn'])
     params = only_user_params(params)
     template = terraform(parameter_group, info, params, tags)
     click.echo(template)

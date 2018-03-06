@@ -31,7 +31,7 @@ setup(
     url='https://github.com/cxmcc/rdspg',
     packages=['rdspg'],
     package_data={'rdspg': ['terraform.jinja']},
-    entry_points={'console_scripts': ['rdspg = rdspg.__main__:main']},
+    entry_points={'console_scripts': ['rdspg = rdspg.main:main']},
     install_requires=install_requires,
     keywords=['AWS', 'RDS', 'Parameter Groups', 'Relational Database Service'],
     classifiers=classifiers,
