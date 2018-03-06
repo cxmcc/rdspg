@@ -107,7 +107,7 @@ class RDSClusterAPI(RDSAPI):
         return resp['DBClusterParameterGroups']
 
     def get_pg_info(self, name):
-        resp = self.client.describe_db_parameter_groups(
+        resp = self.client.describe_db_cluster_parameter_groups(
             DBClusterParameterGroupName=name
         )
         info = resp['DBClusterParameterGroups'][0]

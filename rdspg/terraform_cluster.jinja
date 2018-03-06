@@ -1,0 +1,22 @@
+resource "aws_rds_cluster_parameter_group" "{{ parameter_group_name }}" {
+  name   = "{{ parameter_group_name }}"
+  family = "{{ info['DBParameterGroupFamily'] }}"
+{% if info['Description'] %}  description = "{{ info['Description'] }}"
+{% endif %}
+{% if params %}
+{% for param in params %}
+  parameter {
+    name         = "{{ param['ParameterName'] }}"
+    value        = "{{ param['ParameterValue'] }}"
+    apply_method = "{{ param['ApplyMethod'] }}"
+  }
+{% endfor %}
+{% endif %}
+{% if tags %}
+  tags {
+{% for tag in tags %}
+    {{ tag['Key']}} = "{{ tag['Value'] }}"
+{% endfor %}
+  }
+{% endif %}
+}

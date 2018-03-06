@@ -65,10 +65,15 @@ def only_important_columns(params):
     return params
 
 
-def terraform(parameter_group_name, info, params, tags):
+def terraform(parameter_group_name, info, params, tags, cluster=False):
+    if cluster:
+        template_file = 'terraform_cluster.jinja'
+    else:
+        template_file = 'terraform_instance.jinja'
+
     def render(context):
         curr_dir = os.path.dirname(__file__)
-        template_file_path = os.path.join(curr_dir, 'terraform.jinja')
+        template_file_path = os.path.join(curr_dir, template_file)
         path, filename = os.path.split(template_file_path)
         return jinja2.Environment(
             loader=jinja2.FileSystemLoader(path or './')
@@ -169,7 +174,11 @@ def cmd_terraform(cluster, parameter_group):
     api = rds.get_api(cluster=cluster)
     params = api.get_parameters(parameter_group)
     info = api.get_pg_info(parameter_group)
-    tags = api.list_tags(info['DBParameterGroupArn'])
+    if cluster:
+        arn = info['DBClusterParameterGroupArn']
+    else:
+        arn = info['DBParameterGroupArn']
+    tags = api.list_tags(arn)
     params = only_user_params(params)
     template = terraform(parameter_group, info, params, tags)
     click.echo(template)
