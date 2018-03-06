@@ -34,6 +34,10 @@ This tool needs certain IAM permissions in order to work. Example policy:
              "Action":[
                 "rds:DescribeDBInstances",
                 "rds:DescribeDBParameters",
+                "rds:DescribeDBParameterGroups",
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBClusterParameterGroups",
+                "rds:DescribeDBClusterParameters",
                 "rds:ListTagsForResource"
              ],
              "Resource":"*"
