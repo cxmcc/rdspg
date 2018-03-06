@@ -125,7 +125,7 @@ Usage
     
     }
 
-* All the commands work for db clusters with `--cluster` flag
+* All the commands work for db clusters with ``--cluster`` flag
 
 ::
 
